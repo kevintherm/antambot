@@ -8,6 +8,12 @@ if ! pip show pyinstaller > /dev/null; then
     echo "Installing PyInstaller..."
     pip install pyinstaller
 fi
+# Install requirements from file
+if [ -f "requirements.txt" ]; then
+    echo "Installing requirements..."
+    pip install -r requirements.txt
+fi
+
 
 # Clean previous builds
 echo "Cleaning previous builds..."
@@ -31,6 +37,8 @@ echo "Building executable..."
 # Note: main.py is still Python, but it imports compiled modules
 pyinstaller --onefile --name antam-bot-secure --clean main.py \
     --hidden-import bot \
+    --collect-all pyyaml \
+    --collect-all undetected_chromedriver \
     --hidden-import captcha \
     --hidden-import requests \
     --hidden-import undetected_chromedriver \

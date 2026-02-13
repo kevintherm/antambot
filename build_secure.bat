@@ -23,6 +23,13 @@ if exist antam-bot-secure.spec del antam-bot-secure.spec
 :: Create backup directory
 if not exist src_backup mkdir src_backup
 
+:: Install requirements
+echo Installing requirements...
+pip install -r requirements.txt
+if %errorlevel% neq 0 (
+    echo [WARNING] Failed to install requirements. Build might fail if dependencies are missing.
+)
+
 :: Step 1: Compile modules with Cython
 echo Compiling modules to C extensions...
 python setup.py build_ext --inplace
@@ -41,6 +48,8 @@ move captcha.py src_backup\ >nul
 echo Building executable...
 pyinstaller --onefile --name antam-bot-secure --clean main.py ^
     --hidden-import bot ^
+    --collect-all pyyaml ^
+    --collect-all undetected_chromedriver ^
     --hidden-import captcha ^
     --hidden-import requests ^
     --hidden-import undetected_chromedriver ^

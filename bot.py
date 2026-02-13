@@ -133,13 +133,14 @@ def setup_driver_for_user(username):
     sanitized = "".join(c for c in username if c.isalnum())
     target_dir = os.path.abspath(f"drivers/{sanitized}")
     os.makedirs(target_dir, exist_ok=True)
-    target_path = os.path.join(target_dir, "chromedriver")
+    exe_name = "chromedriver.exe" if os.name == 'nt' else "chromedriver"
+    target_path = os.path.join(target_dir, exe_name)
 
     browser_path = None
     if not shutil.which("google-chrome") and shutil.which("chromium-browser"):
         browser_path = "/usr/bin/chromium-browser"
 
-    patcher = uc.Patcher(version_main=143)
+    patcher = uc.Patcher()
     patcher.auto()
 
     try:
@@ -191,7 +192,6 @@ class AntamBot:
             self.driver = uc.Chrome(
                 options=self.options, use_subprocess=True,
                 browser_executable_path="/usr/bin/chromium-browser",
-                version_main=143,
                 driver_executable_path=self.driver_executable_path,
             )
         else:
