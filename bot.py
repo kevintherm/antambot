@@ -4,7 +4,18 @@ import sys
 import os
 import shutil
 import requests as http_requests
+import ssl
 from datetime import datetime
+
+# Windows SSL Fix: Disable certificate verification for patching if it fails
+if os.name == 'nt':
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        # Legacy Python versions
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
 
 # Patch distutils for Python 3.12+ compatibility (required for undetected-chromedriver)
 if sys.version_info >= (3, 12):
