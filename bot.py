@@ -380,6 +380,23 @@ class AntamBot:
             self.type_slowly(captcha_input, str(answer))
             time.sleep(self.action_delay)
 
+            # --- Turnstile Check ---
+            if self.get_turnstile_sitekey():
+                logger.info("[login] Turnstile detected on login page")
+                if not self.check_turnstile():
+                    if self.captcha_solver:
+                        logger.info("[login] Attempting auto-solve for Turnstile...")
+                        self.auto_solve_turnstile()
+                    
+                    if not self.check_turnstile():
+                        logger.warning("=" * 60)
+                        logger.warning("⚠️  TURNSTILE DETECTED ON LOGIN — please solve it in the browser!")
+                        logger.warning("=" * 60)
+                        # Wait loop for manual solution
+                        while not self.check_turnstile():
+                            time.sleep(1)
+                        logger.info("[login] ✅ Turnstile solved!")
+
             # Submit
             btn = self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
             btn.click()
