@@ -1,0 +1,26 @@
+accounts:
+- username: ummiehabibah21@gmail.com
+  password: Abiba123_
+  site: Butik Emas LM - Bintaro
+  # submit_target_time: "08:00"
+  # proxy: http://fmrsacjs:et4fqqoqmo2w@23.229.19.94:8689
+- username: sripujilesmanasari00@gmail.com
+  password: Puji123#
+  site: Butik Emas LM - Bintaro
+  # submit_target_time: "08:00"
+  # proxy: http://user:pass@host:port
+# - username: sita.zuba@gmail.com
+#   password: D4finaD4nifa
+#   site: Butik Emas LM - Bintaro
+#   # submit_target_time: "08:00"
+#  # proxy: http://fmrsacjs:et4fqqoqmo2w@23.95.150.145:6114
+
+config:
+  action_delay: 0.2
+  typing_delay: 0.015
+  parallel_delay: 10
+  retries: 3
+
+  # Captcha solver (optional — omit to solve manually in browser)
+  # captcha_provider: 2captcha        # "2captcha" or "capsolver"
+  # captcha_api_key: YOUR_API_KEY_HERE
