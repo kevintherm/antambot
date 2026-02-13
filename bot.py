@@ -138,6 +138,26 @@ class TurnstileSolver:
         logger.error("[captcha] capsolver timeout")
         return None
 
+import subprocess
+
+def get_browser_major_version(path):
+    """Extract the major version number from a browser executable on Windows."""
+    if not path or not os.path.exists(path):
+        return None
+    if os.name == 'nt':
+        try:
+            # Use PowerShell to get the file version info
+            cmd = f'powershell "(Get-Item \'{path}\').VersionInfo.FileVersion"'
+            output = subprocess.check_output(cmd, shell=True, text=True).strip()
+            # FileVersion might be "114.0.1823.51" or similar
+            if output:
+                major = output.split('.')[0]
+                logger.info(f"  Detected browser version: {output} (major: {major})")
+                return int(major)
+        except Exception as e:
+            logger.debug(f"Failed to get version via PowerShell: {e}")
+    return None
+
 
 def find_chrome_executable():
     """Locate Chrome, Brave, or Edge executable on Windows/Linux."""
@@ -233,10 +253,13 @@ class AntamBot:
         browser_path = find_chrome_executable()
         if browser_path:
             logger.info(f"  browser: {browser_path}")
+            version_main = get_browser_major_version(browser_path)
+            
             self.driver = uc.Chrome(
                 options=self.options, use_subprocess=True,
                 browser_executable_path=browser_path,
                 driver_executable_path=self.driver_executable_path,
+                version_main=version_main,
             )
         else:
             logger.warning("  Could not find Chrome automatically. Attempting default startup...")
