@@ -28,7 +28,7 @@ echo Compiling modules to C extensions...
 python setup.py build_ext --inplace
 if %errorlevel% neq 0 (
     echo [ERROR] Compilation failed. 
-    echo Ensure you have a C compiler installed (e.g., Visual Studio Build Tools with "Desktop development with C++").
+    echo Ensure you have a C compiler installed (e.g., Visual Studio Build Tools with "Desktop development with C++"^).
     exit /b 1
 )
 
