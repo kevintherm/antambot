@@ -139,6 +139,41 @@ class TurnstileSolver:
         return None
 
 
+def find_chrome_executable():
+    """Locate Chrome, Brave, or Edge executable on Windows/Linux."""
+    if os.name == 'nt':
+        # Search configs: (relative_path, list_of_env_vars)
+        search_configs = [
+            # Chrome
+            ("Google\\Chrome\\Application\\chrome.exe", ["ProgramFiles", "ProgramFiles(x86)", "LocalAppData"]),
+            # Brave
+            ("BraveSoftware\\Brave-Browser\\Application\\brave.exe", ["ProgramFiles", "ProgramFiles(x86)", "LocalAppData"]),
+            # Edge
+            ("Microsoft\\Edge\\Application\\msedge.exe", ["ProgramFiles", "ProgramFiles(x86)", "LocalAppData"]),
+        ]
+        
+        for relative_path, env_vars in search_configs:
+            for ev in env_vars:
+                base = os.environ.get(ev)
+                if base:
+                    full_path = os.path.join(base, relative_path)
+                    if os.path.exists(full_path):
+                        return full_path
+        
+        # Fallback to PATH
+        for cmd in ["chrome", "brave", "msedge", "google-chrome", "chrome.exe"]:
+            found = shutil.which(cmd)
+            if found:
+                return found
+    else:
+        # Linux/Mac
+        for cmd in ["google-chrome", "google-chrome-stable", "brave-browser", "brave", "microsoft-edge", "chromium-browser", "chromium"]:
+            found = shutil.which(cmd)
+            if found:
+                return found
+    return None
+
+
 def setup_driver_for_user(username):
     """Copy chromedriver to a per-user directory to avoid lock conflicts."""
     sanitized = "".join(c for c in username if c.isalnum())
@@ -146,10 +181,6 @@ def setup_driver_for_user(username):
     os.makedirs(target_dir, exist_ok=True)
     exe_name = "chromedriver.exe" if os.name == 'nt' else "chromedriver"
     target_path = os.path.join(target_dir, exe_name)
-
-    browser_path = None
-    if not shutil.which("google-chrome") and shutil.which("chromium-browser"):
-        browser_path = "/usr/bin/chromium-browser"
 
     patcher = uc.Patcher()
     patcher.auto()
@@ -199,13 +230,16 @@ class AntamBot:
         if self.proxy:
             logger.info(f"  proxy: {self.proxy}")
 
-        if not shutil.which("google-chrome") and shutil.which("chromium-browser"):
+        browser_path = find_chrome_executable()
+        if browser_path:
+            logger.info(f"  browser: {browser_path}")
             self.driver = uc.Chrome(
                 options=self.options, use_subprocess=True,
-                browser_executable_path="/usr/bin/chromium-browser",
+                browser_executable_path=browser_path,
                 driver_executable_path=self.driver_executable_path,
             )
         else:
+            logger.warning("  Could not find Chrome automatically. Attempting default startup...")
             self.driver = uc.Chrome(
                 options=self.options, use_subprocess=True,
                 driver_executable_path=self.driver_executable_path,
